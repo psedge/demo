@@ -8,8 +8,6 @@ let foreLight;
 
 // metronome
 let audioContext = new AudioContext();
-let osc = audioContext.createOscillator();
-osc.connect( audioContext.destination );
 
 // stats
 let stats = new Stats();
@@ -18,7 +16,7 @@ document.body.appendChild( stats.dom );
 let columns = []
 
 // initials
-let cameraPositionInitial = {x: 0, y: 250, z:0}
+let cameraPositionInitial = {x: 0, y: 1250, z:0}
 
 function createLights() {
     // Create a directional light
@@ -39,10 +37,12 @@ function removeForelight() {
     scene.remove(foreLight)
 }
 
-function startMetronome(bpm) {
-    osc.frequency.value = 260.0;
-    osc.start( 0 );
-    osc.stop( 0 + 1 );
+function playNote(freq, bpm) {
+    let osc = audioContext.createOscillator();
+    osc.connect( audioContext.destination );
+    osc.frequency.value = freq;
+    osc.start( audioContext.currentTime );
+    osc.stop( audioContext.currentTime + 1/bpm );
 }
 
 function init() {
@@ -58,7 +58,7 @@ function init() {
     const fov = 35; // fov = Field Of View
     const aspect = container.clientWidth / container.clientHeight;
     const near = 0.1;
-    const far = 1000;
+    const far = 1500;
 
     createLights()
 
@@ -81,8 +81,10 @@ function init() {
     // add the automatically created <canvas> element to the page
     container.appendChild(renderer.domElement);
 
-    for (var x = -6; x < 6; x += 1) {
-        for (var z = 6; z > -6; z -= 1) {
+    across = 0
+    for (var x = -6; x <= 6; x += 1) {
+        across += 1
+        for (var z = -6; z <= 6; z += 1) {
             columns.push({
                 mesh: column(x, 1, z),
                 position: {'x': x, 'y': 1, 'z': z}
@@ -101,7 +103,7 @@ function animate() {
         requestAnimationFrame( animate );
         window.requestIdleCallback(routine)
         stats.end();
-    }, 1000 / 75 );
+    }, 1000 / 60 );
 
     renderer.render(backgroundScene, camera);
     renderer.render(scene, camera);
@@ -109,7 +111,7 @@ function animate() {
     if (typeof roadScene != 'undefined') renderer.render(roadScene, camera);
 }
 
-let order = [0, 1, 2, 3, 6]
+let order = [];
 
 let halt = false
 let routineItem = 0;
@@ -121,13 +123,21 @@ clock.start()
 
 function routine() {
     if (halt) return
+//    if (order.length == 0) order = [0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, -1]
+    if (order.length == 0) order = [0, 1, 2, 1, 2, 1, 2, 1, -1]
+    resetCamera(true, false, true)
+
+    if (order[0] == -1) {
+        itemCount = cameraPositionInitial.y
+        camera.position.y = cameraPositionInitial.y
+        resetColumns()
+        order.shift()
+    }
 
     // initial zoom
     if (order[0] == 0) {
-        resetColumns()
-
         if (itemCount > 100) {
-            itemCount -= 1
+            itemCount -= 10
             ifReady(0.01, function() { camera.position.y = itemCount })
             return
         }
@@ -137,8 +147,8 @@ function routine() {
 
     // explode
     if (order[0] == 1) {
-        moveColumns(0.02, 0, 0.02)
-        if (itemCount > 50) {
+        moveColumns(0.03, 0, 0.03)
+        if (itemCount > 30) {
             order.shift()
             itemCount = 0
             return
@@ -148,17 +158,17 @@ function routine() {
 
     // camera rotate on axis
     if (order[0] == 2) {
-        rotations = 91
+        rotations = 45
 
         if (itemCount <= rotations) {
-            camera.rotation.z += Math.PI / 180
+            camera.rotation.z += 2*Math.PI / 180
             itemCount += 1
         }
 
         if (itemCount >= rotations) {
             camera.rotation.z = roundUpToNearest(camera.rotation.z, Math.PI/2)
             itemCount = 0
-             order.shift()
+            order.shift()
             return
         }
     }
@@ -166,7 +176,7 @@ function routine() {
     // implode
     if (order[0] == 3) {
         moveColumns(-0.01, 0, -0.01)
-        if (itemCount > 50) {
+        if (itemCount > 30) {
             order.shift()
             itemCount = 0
             return
@@ -176,10 +186,10 @@ function routine() {
 
     // camera rotate back on axis
     if (order[0] == 4) {
-        rotations = 91
+        rotations = 45
 
         if (itemCount <= rotations) {
-            camera.rotation.z += Math.PI / 180
+            camera.rotation.z += 2 * Math.PI / 180
             itemCount += 1
         }
 
@@ -325,7 +335,15 @@ function resetColumns() {
     })
 }
 
-function resetCamera() {
+function resetCamera(x, y, z) {
+    // if we had odd numbers, set camera to center col
+    if (columns.length % 2 != 0) {
+        var col = columns[Math.round(columns.length/2)-1].mesh.position
+        if (x) camera.position.x = col.x
+        if (y) camera.position.y = col.y
+        if (z) camera.position.z = col.z
+        return
+    }
     let avgPosition = {x: 0, y: 0, z: 0}
 
     columns.forEach(function (c, i) {
@@ -360,3 +378,7 @@ init()
 resetCamera()
 
 animate()
+
+addForelight()
+
+//columns[84].mesh.material.color.setHex(0xAA00AA)
