@@ -7,7 +7,7 @@ let clock = new THREE.Clock();
 let foreLight;
 
 // metronome
-let audioContext = new AudioContext();
+//let audioContext = new AudioContext();
 
 // stats
 let stats = new Stats();
