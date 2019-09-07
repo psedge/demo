@@ -66,7 +66,6 @@ function init() {
 
     // every object is initially created at ( 0, 0, 0 )
     // we'll move the camera back a 4bit so that we can view the scene
-//    camera.position.set(0, -2, -10);
     camera.position.set(cameraPositionInitial.x, cameraPositionInitial.y, cameraPositionInitial.z);
     camera.lookAt( new THREE.Vector3(0, 0, 0));
 
@@ -80,19 +79,15 @@ function init() {
 
     // add the automatically created <canvas> element to the page
     container.appendChild(renderer.domElement);
-
-    across = 0
-    for (var x = -6; x <= 6; x += 1) {
-        across += 1
-        for (var z = -6; z <= 6; z += 1) {
+    quant = 6;
+    for (var x = -quant; x <= quant; x += 1) {
+        for (var z = -quant; z <= quant; z += 1) {
             columns.push({
                 mesh: column(x, 1, z),
                 position: {'x': x, 'y': 1, 'z': z}
             })
         }
     }
-
-    var material = new THREE.MeshBasicMaterial({color: 0x00cc00});
 }
 
 let camPos = 10;
@@ -115,7 +110,6 @@ let order = [];
 
 let halt = false
 let routineItem = 0;
-let subRoutineItem = 0;
 let itemCount = cameraPositionInitial.y;
 let lastTime = 0;
 
@@ -125,6 +119,7 @@ function routine() {
     if (halt) return
 //    if (order.length == 0) order = [0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, -1]
     if (order.length == 0) order = [0, 1, 2, 1, 2, 1, 2, 1, -1]
+    // if (order.length == 0) order = [1]
     resetCamera(true, false, true)
 
     if (order[0] == -1) {
@@ -306,16 +301,13 @@ function roundUpToNearest(number, multiple) {
     return Math.max(multiple, number+half - (number+half) % multiple)
 }
 
-function column(x, y, z) {
-    let geometry = new THREE.BoxBufferGeometry(1, 10, 1);
-//    let material = new THREE.MeshStandardMaterial({color: 0x5500FF, transparent: true});
-    let material = new THREE.MeshLambertMaterial({color: 0xFFFFFF, transparent: true});
-//    material.opacity = Math.random();
+let material = new THREE.MeshLambertMaterial({color: 0xFFFFFF, transparent: true});
+let geometry = new THREE.BoxBufferGeometry(1, 10, 1);
 
+function column(x, y, z) {
     let innerMesh = new THREE.Mesh(geometry, material);
     innerMesh.position.set(x, y, z);
     scene.add(innerMesh);
-
     return innerMesh;
 }
 
@@ -357,22 +349,6 @@ function resetCamera(x, y, z) {
     camera.position.z = avgPosition.z / columns.length + cameraPositionInitial.z
 }
 
-function drawRoad() {
-    roadScene = new THREE.Scene();
-
-    var roadShape = new THREE.Shape();
-    roadShape.moveTo(-1, 0)
-    roadShape.lineTo(-.25, 28)
-    roadShape.lineTo(0.25, 28)
-    roadShape.lineTo(1, 0)
-    var roadGeo = new THREE.ExtrudeGeometry(roadShape, {amount: 1, bevelEnabled: false})
-    roadMesh = new THREE.Mesh(roadGeo, new THREE.MeshPhongMaterial({color: 0x000000}))
-    roadMesh.rotation.x = 4.72;
-    roadMesh.position.z = 5;
-    roadMesh.position.y = -5;
-    roadScene.add(roadMesh)
-}
-
 init()
 
 resetCamera()
@@ -380,5 +356,3 @@ resetCamera()
 animate()
 
 addForelight()
-
-//columns[84].mesh.material.color.setHex(0xAA00AA)
