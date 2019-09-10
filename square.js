@@ -3,20 +3,17 @@ let container;
 let camera;
 let renderer;
 let scene;
-let clock = new THREE.Clock();
 let foreLight;
-
-// metronome
-//let audioContext = new AudioContext();
+let clock = new THREE.Clock();
+let columns = []
 
 // stats
 let stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild( stats.dom );
-let columns = []
 
 // initials
-let cameraPositionInitial = {x: 0, y: 1250, z:0}
+let cameraPositionInitial = {x: 0, y: 1600, z:0}
 
 function createLights() {
     // Create a directional light
@@ -37,15 +34,7 @@ function removeForelight() {
     scene.remove(foreLight)
 }
 
-function playNote(freq, bpm) {
-    let osc = audioContext.createOscillator();
-    osc.connect( audioContext.destination );
-    osc.frequency.value = freq;
-    osc.start( audioContext.currentTime );
-    osc.stop( audioContext.currentTime + 1/bpm );
-}
-
-function init() {
+function init(quant) {
     // Get a reference to the container element that will hold our scene
     container = document.querySelector("#scene-container");
 
@@ -58,7 +47,7 @@ function init() {
     const fov = 35; // fov = Field Of View
     const aspect = container.clientWidth / container.clientHeight;
     const near = 0.1;
-    const far = 1500;
+    const far = 3000;
 
     createLights()
 
@@ -78,8 +67,8 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
 
     // add the automatically created <canvas> element to the page
+    columns = []
     container.appendChild(renderer.domElement);
-    quant = 6;
     for (var x = -quant; x <= quant; x += 1) {
         for (var z = -quant; z <= quant; z += 1) {
             columns.push({
@@ -90,13 +79,11 @@ function init() {
     }
 }
 
-let camPos = 10;
-
 function animate() {
     setTimeout( function() {
         stats.begin();
         requestAnimationFrame( animate );
-        window.requestIdleCallback(routine)
+        window.requestIdleCallback(start)
         stats.end();
     }, 1000 / 60 );
 
@@ -107,13 +94,42 @@ function animate() {
 }
 
 let order = [];
-
 let halt = false
 let routineItem = 0;
-let itemCount = cameraPositionInitial.y;
-let lastTime = 0;
 
-clock.start()
+function start() {
+    if (halt) return;
+    let zoom1 = 1
+    let move1 = 1
+    let zoom2 = 1
+    let move2 = 1.5
+
+    return zoomIn((zoom1 - (zoom1 - clock.getElapsedTime())) / zoom1,  {start: cameraPositionInitial.y, end: 250}, function() {
+        return moveColumn((move1 - (move1 - clock.getElapsedTime() + zoom1)) / move1,  {x: 0.05, y: 0, z: 0.05}, function() {
+            return zoomIn((zoom2 - (zoom2 - clock.getElapsedTime() + zoom1+move1)) / zoom2,  {start: 250, end: 100}, function() {
+                return moveColumn((move2 - (move2 - clock.getElapsedTime() + zoom1+move1+zoom2)) / move2,  {x: 0.1, y: 0, z: 0.1}, function() {
+                    resetCamera(true, false, true)
+                    resetColumns()
+                    clock.start()
+                })
+            })
+        })
+    })
+}
+
+function zoomIn(progress, options, callback) {
+    if (progress > 1) {
+        return callback();
+    }
+    camera.position.y = options['start'] - (progress * (options['start'] - options['end']))
+}
+
+function moveColumn(progress, options, callback) {
+    if (progress > 1) {
+        return callback();
+    }
+    moveColumns((progress)*options['x'], (progress)*options['y'], (progress)*options['z'])
+}
 
 function routine() {
     if (halt) return
@@ -236,16 +252,6 @@ function routine() {
     }
 }
 
-function waitFor(milliseconds, callback) {
-    var c = new THREE.Clock(true)
-
-    sinceStart = 0
-    while (sinceStart < milliseconds) {
-        sinceStart += c.getDelta()
-    }
-    return callback()
-}
-
 let c = new THREE.Clock(true)
 let since = 0;
 function ifReady(milliseconds, callback) {
@@ -254,46 +260,6 @@ function ifReady(milliseconds, callback) {
         since = 0
         return callback()
     }
-}
-
-function colors(subRoutine) {
-    candidates = []
-
-    if (subRoutine == 0) {
-        candidates = {
-            '{"x":-2,"y":1,"z":-4}': 0xFF0000,
-            '{"x":2,"y":1,"z":-4}': 0xFF0000,
-            //mouth
-            '{"x":-4,"y":1,"z":4}': 0x000000,
-            '{"x":-4,"y":1,"z":2}': 0x000000,
-            '{"x":-2,"y":1,"z":4}': 0x000000,
-            '{"x":0,"y":1,"z":4}': 0x000000,
-            '{"x":2,"y":1,"z":4}': 0x000000,
-            '{"x":4,"y":1,"z":4}': 0x000000,
-            '{"x":4,"y":1,"z":2}': 0x000000,
-        }
-    }
-    if (subRoutine == 1) {
-        candidates = {
-            '{"x":-2,"y":1,"z":-4}': 0xFF0000,
-            '{"x":2,"y":1,"z":-4}': 0xFF0000,
-            //mouth
-            '{"x":-4,"y":1,"z":4}': 0x000000,
-            '{"x":-4,"y":1,"z":2}': 0x000000,
-            '{"x":-2,"y":1,"z":4}': 0x000000,
-            '{"x":0,"y":1,"z":4}': 0x000000,
-            '{"x":2,"y":1,"z":4}': 0x000000,
-            '{"x":4,"y":1,"z":4}': 0x000000,
-            '{"x":4,"y":1,"z":2}': 0x000000,
-        }
-    }
-
-    columns.forEach(function (c, i) {
-        index = Object.keys(candidates).indexOf(JSON.stringify(c.position))
-        if (index > -1) {
-            c.mesh.material.color.setHex(candidates[JSON.stringify(c.position)])
-        }
-    })
 }
 
 function roundUpToNearest(number, multiple) {
@@ -312,7 +278,7 @@ function column(x, y, z) {
 }
 
 function moveColumns(x, y, z) {
-    ifReady(0.01, () => columns.forEach(function (c, i) {
+    ifReady(0.005, () => columns.forEach(function (c, i) {
         c.mesh.position.x += x * c.mesh.position.x
         c.mesh.position.y += y * c.mesh.position.y
         c.mesh.position.z += z * c.mesh.position.z
@@ -328,6 +294,11 @@ function resetColumns() {
 }
 
 function resetCamera(x, y, z) {
+    camera.position.x = cameraPositionInitial.x
+    camera.position.y = cameraPositionInitial.y
+    camera.position.z = cameraPositionInitial.z
+    return;
+
     // if we had odd numbers, set camera to center col
     if (columns.length % 2 != 0) {
         var col = columns[Math.round(columns.length/2)-1].mesh.position
@@ -349,7 +320,7 @@ function resetCamera(x, y, z) {
     camera.position.z = avgPosition.z / columns.length + cameraPositionInitial.z
 }
 
-init()
+init(3)
 
 resetCamera()
 
