@@ -13,7 +13,7 @@ stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild( stats.dom );
 
 // initials
-let cameraPositionInitial = {x: 0, y: 1600, z:0}
+let cameraPositionInitial = {x: 0, y: 160, z:0}
 
 function createLights() {
     // Create a directional light
@@ -24,10 +24,10 @@ function createLights() {
 }
 
 function addForelight() {
-    foreLight = new THREE.SpotLight(0xFFFFFF, 1.0);
-    foreLight.position.set(0, 5, 25);
-    foreLight.target.position.set(0, 0, 10);
-    scene.add(foreLight);
+    // foreLight = new THREE.SpotLight(0xFFFFFF, 1.0);
+    // foreLight.position.set(0, 5, 25);
+    // foreLight.target.position.set(0, 0, 10);
+    // scene.add(foreLight);
 }
 
 function removeForelight() {
@@ -59,18 +59,15 @@ function init(quant) {
     camera.lookAt( new THREE.Vector3(0, 0, 0));
 
     // create a WebGLRenderer and set its width and height
-    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer = new THREE.WebGLRenderer();
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.autoClear = false;
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
     renderer.setPixelRatio(window.devicePixelRatio);
 
     // add the automatically created <canvas> element to the page
     columns = []
     container.appendChild(renderer.domElement);
-    for (var x = -quant; x <= quant; x += 1) {
-        for (var z = -quant; z <= quant; z += 1) {
+    for (var x = -quant; x <= quant; x +=0.1) {
+        for (var z = -quant; z <= quant; z += 0.1) {
             columns.push({
                 mesh: column(x, 1, z),
                 position: {'x': x, 'y': 1, 'z': z}
@@ -83,14 +80,11 @@ function animate() {
     setTimeout( function() {
         stats.begin();
         requestAnimationFrame( animate );
-        window.requestIdleCallback(start)
+        start();
         stats.end();
     }, 1000 / 60 );
 
-    renderer.render(backgroundScene, camera);
     renderer.render(scene, camera);
-
-    if (typeof roadScene != 'undefined') renderer.render(roadScene, camera);
 }
 
 let order = [];
@@ -104,9 +98,9 @@ function start() {
     let zoom2 = 1
     let move2 = 1.5
 
-    return zoomIn((zoom1 - (zoom1 - clock.getElapsedTime())) / zoom1,  {start: cameraPositionInitial.y, end: 250}, function() {
+    return zoomIn((zoom1 - (zoom1 - clock.getElapsedTime())) / zoom1,  {start: cameraPositionInitial.y, end: 25}, function() {
         return moveColumn((move1 - (move1 - clock.getElapsedTime() + zoom1)) / move1,  {x: 0.05, y: 0, z: 0.05}, function() {
-            return zoomIn((zoom2 - (zoom2 - clock.getElapsedTime() + zoom1+move1)) / zoom2,  {start: 250, end: 100}, function() {
+            return zoomIn((zoom2 - (zoom2 - clock.getElapsedTime() + zoom1+move1)) / zoom2,  {start: 25, end: 5}, function() {
                 return moveColumn((move2 - (move2 - clock.getElapsedTime() + zoom1+move1+zoom2)) / move2,  {x: 0.1, y: 0, z: 0.1}, function() {
                     resetCamera(true, false, true)
                     resetColumns()
@@ -268,7 +262,7 @@ function roundUpToNearest(number, multiple) {
 }
 
 let material = new THREE.MeshLambertMaterial({color: 0xFFFFFF, transparent: true});
-let geometry = new THREE.BoxBufferGeometry(1, 10, 1);
+let geometry = new THREE.BoxBufferGeometry(0.1, 1, 0.1);
 
 function column(x, y, z) {
     let innerMesh = new THREE.Mesh(geometry, material);
@@ -320,7 +314,7 @@ function resetCamera(x, y, z) {
     camera.position.z = avgPosition.z / columns.length + cameraPositionInitial.z
 }
 
-init(3)
+init(0.35)
 
 resetCamera()
 
