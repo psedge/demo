@@ -16,7 +16,7 @@ function init() {
     scene = new THREE.Scene();
 
     // set up the options for a perspective camera
-    const fov = 35; // fov = Field Of View
+    const fov = 60; // fov = Field Of View
     const aspect = container.clientWidth / container.clientHeight;
     const near = 0.1;
     const far = 1000;
@@ -50,13 +50,12 @@ function init() {
     // add the automatically created <canvas> element to the page
     container.appendChild(renderer.domElement);
 
-    for (var x = -30; x < 30; x += 2) {
-        for (var z = 0; z > -200; z -= 2) {
-            if (x > -2 && x < 2) {
+    for (var x = -400; x < 400; x += 25) {
+        for (var z = 0; z > -200; z -= 25) {
+            if (x > -4 && x < 4) {
                 continue
             }
-            if (Math.random() * 200 > 1 / (Math.abs(z) / 200))
-                columns.push(column(x, 1, z))
+            columns.push(column(x, 1, z))
         }
     }
     
@@ -65,6 +64,7 @@ function init() {
         columnsGeo.merge(columns[c].geometry, columns[c].matrix)
     }
     let material = new THREE.MeshStandardMaterial({color: 0x5500FF, transparent: true});
+    material.opacity = 0.5;
     let innerMesh = new THREE.Mesh(columnsGeo, material);
     scene.add(innerMesh)
 }
@@ -72,10 +72,10 @@ function init() {
 let camPos = 10;
 
 setInterval(function () {
-    if (camPos < -100 ) return
+    if (camPos < -200 ) return
     camera.position.z = camPos;
-    camPos -= 0.5;
-}, 10)
+    camPos -= 0.05;
+}, 1)
 
 function animate() {
     if (halted) return
@@ -94,13 +94,13 @@ function animate() {
 }
 
 function column(x, y, z) {
-    let geometry = new THREE.BoxGeometry(1, 10, 1);
+    let geometry = new THREE.BoxGeometry(20, 75, 20);
     let material = new THREE.MeshStandardMaterial({color: 0x5500FF, transparent: true});
-    material.opacity = Math.random();
+    material.opacity = 0.1;
 
     let innerMesh = new THREE.Mesh(geometry, material);
     innerMesh.position.set(x, y, z);
-
+    innerMesh.updateMatrix();
     return innerMesh;
 }
 
