@@ -13,7 +13,9 @@
 <body>
     <div id="scene-container">
     </div>
-
-    <script src="murj.js"></script>
+    <script type="module">
+        import * as Murj from "./murj.js";
+        window.murj.init();
+    </script>
 </body>
 </html>
