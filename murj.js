@@ -23,6 +23,7 @@ var Murj = {
         this.user.position.set(12, -2, -10);
         var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         this.user.add(camera);
+        this.scene.add(this.user);
 
         const light = new THREE.DirectionalLight(0x5a5a5a, 10.0);
         light.position.set(0, 10, 0);
