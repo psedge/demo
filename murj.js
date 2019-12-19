@@ -99,7 +99,7 @@ let Murj = {
         for (let z = zp+50; z > zp-200; z -= 25) {
             if (!getRowMesh(Math.round(z))) {
                 let columns = [];
-                for (let x = -200; x < 200; x += 25) {
+                for (let x = -25; x < 51; x += 25) {
                     columns.push(window.murj.column(x, 1, z))
                 }
                 addRowToScene(columns, window.murj.scene, z)
@@ -116,7 +116,7 @@ let Murj = {
     },
     start: function () {
         setInterval(function () {
-            if (window.murj.user.position.z < -2000) return;
+            if (window.murj.user.position.z < -10000) return;
             // if (window.murj.user.position.z % 40 < 0.05) {
             //     window.murj.directon = 'W'
             // }
