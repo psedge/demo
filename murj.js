@@ -2,7 +2,7 @@ import { VRButton } from './vrbutton.js';
 
 var Murj = {
     container: null,
-    camera: null,
+    user: null,
     renderer: null,
     backgroundScene: null,
     scene: null,
@@ -19,8 +19,10 @@ var Murj = {
         const near = 0.1;
         const far = 1000;
 
-        this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        this.camera.position.set(12, -2, -10);
+        this.user = new THREE.Group();
+        this.user.position.set(12, -2, -10);
+        var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        this.user.add(camera);
 
         const light = new THREE.DirectionalLight(0x5a5a5a, 10.0);
         light.position.set(0, 10, 0);
@@ -68,8 +70,8 @@ var Murj = {
                 delete window.murj.columns[i];
             }
         });
-        window.murj.renderer.render(window.murj.backgroundScene, window.murj.camera);
-        window.murj.renderer.render(window.murj.scene, window.murj.camera);
+        window.murj.renderer.render(window.murj.backgroundScene, window.murj.user.children[0]);
+        window.murj.renderer.render(window.murj.scene, window.murj.user.children[0]);
     },
     column: function(x, y, z) {
         let geometry = new THREE.BoxGeometry(15, 75, 15);
@@ -87,11 +89,10 @@ var Murj = {
             if (window.murj.camPos < -200 ) return
 
             window.murj.camPos -= 0.05;
-            window.murj.camera.position.z = window.murj.camPos;
-            if (window.murj.camPos % 25 == 0) {
-                window.murj.camera.lookAt(new THREE.Vector3(12, -2, window.murj.camPos))
-            }
-            window.murj.camera.updateProjectionMatrix();
+            window.murj.user.position.z = window.murj.camPos;
+            // if (window.murj.camPos % 25 == 0) {
+            //     window.murj.camera.lookAt(new THREE.Vector3(12, -2, window.murj.camPos))
+            // }
         }, 10)
     }
 };
