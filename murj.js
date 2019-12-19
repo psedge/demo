@@ -91,6 +91,7 @@ var Murj = {
             if (window.murj.camPos % 25 == 0) {
                 window.murj.camera.lookAt(new THREE.Vector3(12, -2, window.murj.camPos))
             }
+            window.murj.camera.updateProjectionMatrix();
         }, 10)
     }
 };
