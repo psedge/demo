@@ -1,19 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>squares</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="UTF-8"/>
-    <link rel="icon" href="https://discoverthreejs.com/favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <style>
+        body {
+            display: block;
+            margin: auto;
+            width: 1024px;
+            height: 100vh;
+            font-family: "Segoe UI", sans-serif;
+        }
 
-    <link href="main.css" rel="stylesheet" type="text/css">
-    <script src="three.min.js"></script>
-    <script src="stats.min.js"></script>
+        h2 {
+            text-align: center;
+        }
+        p {
+            word-spacing: 2px;
+        }
+        div {
+            display: block;
+            width: 100%;
+            padding: 10px;
+        }
+        div a {
+            color: #064c53;
+            text-decoration: none;
+            font-weight: bold
+        }
+        div a:hover {
+            color: #1598a3;
+        }
+        div a:visited {
+            color: #400d5c;
+        }
+    </style>
 </head>
 <body>
-    <div id="scene-container">
-    </div>
+<h2>demo; experiments in graphics</h2>
+<p>I've always adored games, they were the place I discovered CS and are still the place I retreat to. I wanted to find out
+how they work. Here's a chronological dev-log of my efforts.</p>
 
-    <script src="square.js"></script>
+<div><a href="./gibson.html" alt="Gibson">Gibson</a><p>I pretty much wanted to emulate that scene from hackers where they
+show the search of the .garbage files within the Gibson, so I created a shit-ton of columns and thought this was pretty
+blackhat. Turns out lighting and mesh composition have an effect on performance...<br/> <br/> ¯\_(ツ)_/¯</p></div>
+<hr/>
+
+<div><a href="./murj.html" alt="Murj">Murj</a><p>I somehow won a fb hackathon in London - the prize of which was an Oculus Quest,
+so this was my attempt at progressing on gibson and adding VR-compatibility, so I could send a nauseating demo to my team to
+f*ck with them ❤</p></div>
+<hr/>
+
+<div><a href="./square.html" alt="Square">Sqaure</a><p>It took me forever to figure out moving those columns around the
+camera alongside rotation, and to be honest I never figured out a better way than 'syncing' at the end of every action.
+I wanted to get this pixel-perfect so that it would loop smoothly, which I failed in. I was still super proud of getting
+this far though.</p></div>
+<hr/>
+
+<div><a href="./gr1d.html" alt="Grid 1">gr1d</a><p>There was quite a time lapse between square and gr1d, as I hit a road block
+with loading in and out geometries, understanding how you could do that without it looking janky. I also moved to Sweden.
+    Both the result of this and my move were happy, accidental outcomes.</p></div>
+<hr/>
+
+<div><a href="./gr2d.html" alt="Grid 2">gr2d</a><p>I took this concept a little further and made it semi-functional. Still trying
+to figure out timing loops but I think Three.JS probably isn't the place for that anyway. I had fun with this, and it's working alright.
+</p></div>
+<hr/>
+
+
 </body>
 </html>
