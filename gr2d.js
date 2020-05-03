@@ -177,6 +177,7 @@ let Gr1d = {
                 return
             }
             window.gr1d.backgroundScene.background = new THREE.Color(0, 0, 0);
+            window.gr1d.color = 'black'
         }, beat * 16)
     }
 };
