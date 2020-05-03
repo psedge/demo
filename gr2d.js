@@ -117,6 +117,12 @@ let Gr1d = {
                 case "S":
                     window.gr1d.user.position.z += 250 / beat;
                     break;
+                case "D":
+                    window.gr1d.user.position.y -= 250 / beat;
+                    break;
+                case "U":
+                    window.gr1d.user.position.y += 250 / beat;
+                    break;
             }
         }, 10)
         setInterval(function () {
@@ -138,15 +144,23 @@ let Gr1d = {
                 window.gr1d.direction = "E"
                 return
             }
+            if (window.gr1d.user.position.y > 37.5) {
+                window.gr1d.direction = "D"
+                return
+            }
+            if (window.gr1d.user.position.y < -37.5) {
+                window.gr1d.direction = "U"
+                return
+            }
 
-            let directions = ["N", "E", "S", "W"]
-            directions = directions.splice(directions.indexOf(window.gr1d.direction))
+            let directions = ["N", "E", "S", "W", "U", "D"]
+            directions.splice(directions.indexOf(window.gr1d.direction), 1)
             window.gr1d.direction = directions[Math.floor(Math.random() * directions.length)]
 
         }, beat)
         setInterval(function () {
-            let colors = ["#FFC312","#C4E538", "#12CBC4", "#FDA7DF", "#ED4C67", "#F79F1F", "#A3CB38", "#1289A7", "#D980FA",
-            "#B53471", "#EE5A24", "#009432", "#0652DD", "#9980FA", "#833471", "#EA2027", "#006266", "#1B1464", "#5758BB"]
+            let colors = ["#FFC312", "#C4E538", "#12CBC4", "#FDA7DF", "#ED4C67", "#F79F1F", "#A3CB38", "#1289A7", "#D980FA",
+                "#B53471", "#EE5A24", "#009432", "#0652DD", "#9980FA", "#833471", "#EA2027", "#006266", "#1B1464", "#5758BB"]
             let color = colors[Math.floor(Math.random() * colors.length)]
             for (let child in window.gr1d.scene.children) {
                 let row = window.gr1d.scene.children[child];
@@ -164,9 +178,6 @@ let Gr1d = {
             }
             window.gr1d.backgroundScene.background = new THREE.Color(0, 0, 0);
         }, beat * 16)
-        setTimeout(function() {
-
-        })
     }
 };
 
